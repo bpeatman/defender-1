@@ -31,7 +31,7 @@ sudo apt install build-essentials wine python3
 ### Build the assembler toolchain
 
 We use [`asm6809`](https://www.6809.org.uk/asm6809/) to assembler the source code for the main game and [`vasm`](http://www.compilers.de/vasm.html) to compile
-the sound module. 
+the sound module.
 
 First you must run the following to set up the git submodules containing the assembler toolchain:
 
@@ -46,7 +46,7 @@ Now you can build the toolchain, as follows:
 cd asm6809
 ./autogen.sh
 ./configure
-make 
+make
 cd ..
 cd vasm-mirror
 make CPU=6800 SYNTAX=oldstyle
@@ -118,7 +118,7 @@ So each file `defend.[x]` corresponds to a matching chip on the board and
 because there is a missing chip in slot 5 we have no `defend.5` in the rom dump
 listing.
 
-In the [Defender product documentation](https://www.robotron-2084.co.uk/manuals/defender/defender_later_pcb_drawing_set.pdf) a 
+In the [Defender product documentation](https://www.robotron-2084.co.uk/manuals/defender/defender_later_pcb_drawing_set.pdf) a
 chart lists the part numbers for each chip and confirms that IC5 (i.e. `defend.5`) is unused:
 
 <img src="orig/RedLabelROMChart.png" size="300">
@@ -175,7 +175,7 @@ The final module the notes mention is `samexpa7` a bunch of explosion routines a
 	    -l bin/samexap7.lst -o bin/samexap7.o
 ```
 
-Eugene's notes are much less clear on how we go about assembling the reamining source files:
+Eugene's notes are much less clear on how we go about assembling the remaining source files:
 
 ```
 mess0.src
@@ -239,7 +239,7 @@ IC11|A5343-09644 |defend.11|Unknown||0x0800
 IC12|A5343-09645 |defend.12|bin/defa7-defb6-amode1.o|0x0800|0x0800
 IC12|A5343-09645 |defend.12|bin/defa7-defb6-amode1.o|0xaee9|0x0117
 
-Replicating this arrangement of the binaries is achieved by [`ChainFilesToRom.py`](ChainFilesToRom.py) in the 
+Replicating this arrangement of the binaries is achieved by [`ChainFilesToRom.py`](ChainFilesToRom.py) in the
 project's [Makefile](Makefile). It's a simple python script that extracts the relevant segments from each of the
 binaries built in the `bin` folder when you run `make redlabel`.
 
@@ -255,7 +255,7 @@ There were a few modifications to the source required along the way to get this 
 +        LDA    #\1
 +        LDX    #\2
          JMP    SLEEPP
-         ENDM 
+         ENDM
 ```
 
 2. Replacing the use of `$` in label names, e.g.:
@@ -281,7 +281,7 @@ object files into the `defend.x` files pick the chunk of code we're interested i
 ```diff
 @@ -111,6 +111,8 @@ YSHIP   EQU    $5000
  AMTYPE  EQU    0
- 
+
          ORG    $C000
 +        PUT    $2000
 +
@@ -320,7 +320,7 @@ index 543cb7e..cdaeb1e 100755
          JSR    STBXBV
          TFR    A,B
          JSR    STBXBV           ;PLAY SOUND
-``` 
+```
 
 7. Update the bit-shift and bit-wise comparison notation to be compatible with syntax expected by `asm6809`, e.g.:
 ```diff
@@ -365,7 +365,7 @@ looks very like a typo that was bug-fixed.
 +        LDA    P1LAS
          BSR    LDSP
          LDA    PLRCNT
-         DECA 
+         DECA
          BEQ    LDPX
 -        LDX    #P2LAS
 -        LDA    .P2LAS
@@ -383,24 +383,24 @@ to the argument in the macro itself and instead adding it before passing the arg
 -        FDB    $\0
          FDB    \1
 +        FDB    \2
-         ENDM 
+         ENDM
 -KILO    MACRO  \0,\1
 +KILO    MACRO  \1,\2
          JSR    KILOS
 -        FDB    $\0
          FDB    \1
 +        FDB    \2
-         ENDM 
+         ENDM
 index 33665f5..3f4c5ac 100755
 --- a/src/defb6.src
 +++ b/src/defb6.src
 @@ -73,13 +73,13 @@ UFONV4  ADDA   #10
-         CLRB 
+         CLRB
          LDA    XTEMP+1
          ADDD   PLAYV
 -        ASRA     DIVIDE           ;BY 2
 +        ASRA                    ; DIVIDE BY 2
-         RORB 
+         RORB
          STD    OYV,X
  UFONVX  RTS  
  *UFOKILL
@@ -441,5 +441,3 @@ in order to get it to match with the ROM binaries.
 ./src/mess0.src:68:        FDB    $5BFF              ;Fixme was: $FFFF
 ./src/mess0.src:654:       FDB    $84FF              ;Fixme was: $FFFF
 ```
-
-
